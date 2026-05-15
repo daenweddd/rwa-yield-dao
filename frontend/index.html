@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>RealYield RWA DAO</title>
+
+  <link rel="stylesheet" href="./style.css" />
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"
+    type="application/javascript"
+  ></script>
+</head>
+
+<body>
+  <header class="header">
+    <div>
+      <h1>RealYield RWA DAO</h1>
+      <p>Tokenized real-world assets, vaults, AMM liquidity, governance, and security testing.</p>
+    </div>
+
+    <button id="connectWalletBtn">Connect Wallet</button>
+  </header>
+
+  <main>
+    <section class="wallet-card">
+      <h2>Wallet Status</h2>
+
+      <div class="status-grid">
+        <div>
+          <span class="label">Connection</span>
+          <p id="connectionStatus">Not connected</p>
+        </div>
+
+        <div>
+          <span class="label">Address</span>
+          <p id="walletAddress">-</p>
+        </div>
+
+        <div>
+          <span class="label">Network</span>
+          <p id="networkInfo">-</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-title">
+      <h2>Protocol Modules</h2>
+      <p>Overview of the main smart-contract components in the protocol.</p>
+    </section>
+
+    <section class="cards">
+      <article class="card">
+        <h3>RWA Asset Token</h3>
+        <p>ERC-20 token representing tokenized real-world assets with minting, burning, pausing, and role-based access control.</p>
+      </article>
+
+      <article class="card">
+        <h3>Asset Certificate NFT</h3>
+        <p>ERC-721 certificate NFT used for asset proof metadata and permissioned certificate issuance.</p>
+      </article>
+
+      <article class="card">
+        <h3>Yield Vault</h3>
+        <p>ERC-4626 vault where users can deposit RWA asset tokens and receive vault shares.</p>
+      </article>
+
+      <article class="card">
+        <h3>Oracle Adapter</h3>
+        <p>Chainlink-style price adapter with stale price and invalid price protection.</p>
+      </article>
+
+      <article class="card">
+        <h3>Issuer Registry</h3>
+        <p>Registry of authorized issuers allowed to mint and burn through the MintingManager.</p>
+      </article>
+
+      <article class="card">
+        <h3>Minting Manager</h3>
+        <p>Connects issuers, asset tokens, and oracle validation for controlled asset issuance.</p>
+      </article>
+
+      <article class="card">
+        <h3>AMM</h3>
+        <p>Constant-product automated market maker with liquidity provision, swaps, LP token minting, and reserve accounting.</p>
+      </article>
+
+      <article class="card">
+        <h3>Treasury</h3>
+        <p>Stores ETH and ERC-20 funds with role-gated withdrawals and reentrancy protection.</p>
+      </article>
+
+      <article class="card">
+        <h3>Governance</h3>
+        <p>Governor and timelock contracts for proposal creation, voting, queueing, and execution.</p>
+      </article>
+    </section>
+
+    <section class="docs">
+      <h2>Project Reports</h2>
+
+      <div class="docs-grid">
+        <a href="../docs/audit-report.md">Audit Report</a>
+        <a href="../docs/architecture.md">Architecture</a>
+        <a href="../docs/coverage-report.md">Coverage Report</a>
+        <a href="../docs/gas-report.md">Gas Report</a>
+        <a href="../docs/slither-report.txt">Slither Report</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>RealYield RWA DAO — Blockchain Final Project</p>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>
