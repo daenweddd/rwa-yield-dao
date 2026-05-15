@@ -1,0 +1,230 @@
+'forge clean' running (wd: /mnt/c/Users/Asus/rwa-yield-dao/contracts)
+'forge config --json' running
+'forge build --build-info src' running (wd: /mnt/c/Users/Asus/rwa-yield-dao/contracts)
+INFO:Detectors:
+Detector: arbitrary-send-eth
+RWATreasury.withdrawEther(address,uint256) (src/treasury/RWATreasury.sol#35-51) sends eth to arbitrary user
+	Dangerous calls:
+	- (success,None) = to.call{value: amount}() (src/treasury/RWATreasury.sol#44)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations
+INFO:Detectors:
+Detector: incorrect-equality
+RWAAMM.addLiquidity(uint256,uint256,uint256) (src/amm/RWAAMM.sol#51-86) uses a dangerous strict equality:
+	- liquidity == 0 (src/amm/RWAAMM.sol#70)
+RWAAMM.removeLiquidity(uint256,uint256,uint256) (src/amm/RWAAMM.sol#88-118) uses a dangerous strict equality:
+	- amount0 == 0 || amount1 == 0 (src/amm/RWAAMM.sol#106)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-strict-equalities
+INFO:Detectors:
+Detector: reentrancy-no-eth
+Reentrancy in RWAAMM.addLiquidity(uint256,uint256,uint256) (src/amm/RWAAMM.sol#51-86):
+	External calls:
+	- lpToken.mint(msg.sender,liquidity) (src/amm/RWAAMM.sol#81)
+	State variables written after the call(s):
+	- _updateReserves() (src/amm/RWAAMM.sol#83)
+		- reserve0 = token0.balanceOf(address(this)) (src/amm/RWAAMM.sol#182)
+	RWAAMM.reserve0 (src/amm/RWAAMM.sol#16) can be used in cross function reentrancies:
+	- RWAAMM.getReserves() (src/amm/RWAAMM.sol#177-179)
+	- RWAAMM.reserve0 (src/amm/RWAAMM.sol#16)
+	- _updateReserves() (src/amm/RWAAMM.sol#83)
+		- reserve1 = token1.balanceOf(address(this)) (src/amm/RWAAMM.sol#183)
+	RWAAMM.reserve1 (src/amm/RWAAMM.sol#17) can be used in cross function reentrancies:
+	- RWAAMM.getReserves() (src/amm/RWAAMM.sol#177-179)
+	- RWAAMM.reserve1 (src/amm/RWAAMM.sol#17)
+Reentrancy in RWAAMM.removeLiquidity(uint256,uint256,uint256) (src/amm/RWAAMM.sol#88-118):
+	External calls:
+	- lpToken.burn(msg.sender,liquidity) (src/amm/RWAAMM.sol#110)
+	State variables written after the call(s):
+	- _updateReserves() (src/amm/RWAAMM.sol#115)
+		- reserve0 = token0.balanceOf(address(this)) (src/amm/RWAAMM.sol#182)
+	RWAAMM.reserve0 (src/amm/RWAAMM.sol#16) can be used in cross function reentrancies:
+	- RWAAMM.getReserves() (src/amm/RWAAMM.sol#177-179)
+	- RWAAMM.reserve0 (src/amm/RWAAMM.sol#16)
+	- _updateReserves() (src/amm/RWAAMM.sol#115)
+		- reserve1 = token1.balanceOf(address(this)) (src/amm/RWAAMM.sol#183)
+	RWAAMM.reserve1 (src/amm/RWAAMM.sol#17) can be used in cross function reentrancies:
+	- RWAAMM.getReserves() (src/amm/RWAAMM.sol#177-179)
+	- RWAAMM.reserve1 (src/amm/RWAAMM.sol#17)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2
+INFO:Detectors:
+Detector: unused-return
+RWAOracleAdapter.getLatestPrice() (src/oracle/RWAOracleAdapter.sol#37-49) ignores return value by (None,price,None,updatedAt,None) = priceFeed.latestRoundData() (src/oracle/RWAOracleAdapter.sol#38)
+RWAOracleAdapter.getLatestPriceData() (src/oracle/RWAOracleAdapter.sol#51-63) ignores return value by (None,answer,None,feedUpdatedAt,None) = priceFeed.latestRoundData() (src/oracle/RWAOracleAdapter.sol#52)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return
+INFO:Detectors:
+Detector: shadowing-local
+RWAGovernor.constructor(IVotes,TimelockController).token (src/governance/RWAGovernor.sol#28) shadows:
+	- GovernorVotes.token() (lib/openzeppelin-contracts/contracts/governance/extensions/GovernorVotes.sol#23-26) (function)
+RWAGovernor.constructor(IVotes,TimelockController).timelock (src/governance/RWAGovernor.sol#28) shadows:
+	- GovernorTimelockControl.timelock() (lib/openzeppelin-contracts/contracts/governance/extensions/GovernorTimelockControl.sol#63-65) (function)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing
+INFO:Detectors:
+Detector: reentrancy-benign
+Reentrancy in AssetCertificateNFT.mintCertificate(address,string) (src/token/AssetCertificateNFT.sol#23-35):
+	External calls:
+	- _safeMint(to,tokenId) (src/token/AssetCertificateNFT.sol#31)
+		- retval = IERC721Receiver(to).onERC721Received(operator,from,tokenId,data) (lib/openzeppelin-contracts/contracts/token/ERC721/utils/ERC721Utils.sol#32-45)
+		- ERC721Utils.checkOnERC721Received(_msgSender(),address(0),to,tokenId,data) (lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol#284-285)
+	State variables written after the call(s):
+	- _tokenURIs[tokenId] = metadataURI (src/token/AssetCertificateNFT.sol#32)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3
+INFO:Detectors:
+Detector: reentrancy-events
+Reentrancy in AssetCertificateNFT.mintCertificate(address,string) (src/token/AssetCertificateNFT.sol#23-35):
+	External calls:
+	- _safeMint(to,tokenId) (src/token/AssetCertificateNFT.sol#31)
+		- retval = IERC721Receiver(to).onERC721Received(operator,from,tokenId,data) (lib/openzeppelin-contracts/contracts/token/ERC721/utils/ERC721Utils.sol#32-45)
+		- ERC721Utils.checkOnERC721Received(_msgSender(),address(0),to,tokenId,data) (lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol#284-285)
+	Event emitted after the call(s):
+	- CertificateMinted(tokenId,to,metadataURI) (src/token/AssetCertificateNFT.sol#34)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-4
+INFO:Detectors:
+Detector: timestamp
+RWAOracleAdapter.getLatestPrice() (src/oracle/RWAOracleAdapter.sol#37-49) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp - updatedAt > maxStaleness (src/oracle/RWAOracleAdapter.sol#44)
+RWAOracleAdapter.getLatestPriceData() (src/oracle/RWAOracleAdapter.sol#51-63) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp - feedUpdatedAt > maxStaleness (src/oracle/RWAOracleAdapter.sol#58)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
+INFO:Detectors:
+Detector: assembly
+AssemblyMath.calculateFee(uint256,uint256) (src/math/AssemblyMath.sol#7-15) uses assembly
+	- INLINE ASM (src/math/AssemblyMath.sol#12-14)
+AssemblyMath.min(uint256,uint256) (src/math/AssemblyMath.sol#17-21) uses assembly
+	- INLINE ASM (src/math/AssemblyMath.sol#18-20)
+AssemblyMath.max(uint256,uint256) (src/math/AssemblyMath.sol#23-27) uses assembly
+	- INLINE ASM (src/math/AssemblyMath.sol#24-26)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage
+INFO:Detectors:
+Detector: pragma
+10 different versions of Solidity are used:
+	- Version constraint ^0.8.0 is used by:
+		-^0.8.0 (lib/chainlink-brownie-contracts/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol#1-2)
+	- Version constraint ^0.8.20 is used by:
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/access/AccessControl.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/governance/TimelockController.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/proxy/utils/Initializable.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/token/ERC1155/utils/ERC1155Holder.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Pausable.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/token/ERC721/utils/ERC721Holder.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/token/ERC721/utils/ERC721Utils.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/Address.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/Context.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/Errors.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/LowLevelCall.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/Nonces.sol#2-3)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/Panic.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/Pausable.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/ShortStrings.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol#3-5)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/math/Math.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/math/SafeCast.sol#3-5)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/math/SignedMath.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/structs/Checkpoints.sol#3-5)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/structs/DoubleEndedQueue.sol#2-3)
+		-^0.8.20 (lib/openzeppelin-contracts/contracts/utils/types/Time.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol#2-3)
+		-^0.8.20 (lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol#2-4)
+		-^0.8.20 (lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol#2-4)
+	- Version constraint >=0.8.4 is used by:
+		->=0.8.4 (lib/openzeppelin-contracts/contracts/access/IAccessControl.sol#2-4)
+		->=0.8.4 (lib/openzeppelin-contracts/contracts/governance/IGovernor.sol#2-4)
+		->=0.8.4 (lib/openzeppelin-contracts/contracts/governance/utils/IVotes.sol#2-4)
+		->=0.8.4 (lib/openzeppelin-contracts/contracts/interfaces/IERC5805.sol#2-4)
+		->=0.8.4 (lib/openzeppelin-contracts/contracts/interfaces/draft-IERC6093.sol#2-4)
+	- Version constraint ^0.8.24 is used by:
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/governance/Governor.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/governance/extensions/GovernorCountingSimple.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/governance/extensions/GovernorSettings.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/governance/extensions/GovernorTimelockControl.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/governance/extensions/GovernorVotes.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/governance/extensions/GovernorVotesQuorumFraction.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/governance/utils/Votes.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Permit.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Votes.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC4626.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/utils/Bytes.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/utils/Memory.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/utils/Strings.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/utils/cryptography/MessageHashUtils.sol#2-4)
+		-^0.8.24 (lib/openzeppelin-contracts/contracts/utils/cryptography/SignatureChecker.sol#2-4)
+		-^0.8.24 (src/amm/RWAAMM.sol#2)
+		-^0.8.24 (src/amm/RWALPToken.sol#2)
+		-^0.8.24 (src/factory/RWAFactory.sol#2)
+		-^0.8.24 (src/governance/RWAGovernor.sol#2)
+		-^0.8.24 (src/governance/RWATimelock.sol#2)
+		-^0.8.24 (src/issuer/IssuerRegistry.sol#2)
+		-^0.8.24 (src/issuer/MintingManager.sol#2)
+		-^0.8.24 (src/math/AssemblyMath.sol#2)
+		-^0.8.24 (src/math/SolidityMath.sol#2)
+		-^0.8.24 (src/mocks/MockV3Aggregator.sol#2)
+		-^0.8.24 (src/oracle/RWAOracleAdapter.sol#2)
+		-^0.8.24 (src/token/AssetCertificateNFT.sol#2)
+		-^0.8.24 (src/token/GovernanceToken.sol#2)
+		-^0.8.24 (src/token/RWAAssetToken.sol#2)
+		-^0.8.24 (src/treasury/RWATreasury.sol#2)
+		-^0.8.24 (src/upgradeable/UpgradeableAssetManager.sol#2)
+		-^0.8.24 (src/upgradeable/UpgradeableAssetManagerV2.sol#2)
+		-^0.8.24 (src/vault/RWAYieldVault.sol#2)
+	- Version constraint >=0.5.0 is used by:
+		->=0.5.0 (lib/openzeppelin-contracts/contracts/interfaces/IERC1271.sol#2-4)
+		->=0.5.0 (lib/openzeppelin-contracts/contracts/interfaces/IERC7913.sol#2-4)
+		->=0.5.0 (lib/openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol#2-4)
+	- Version constraint >=0.6.2 is used by:
+		->=0.6.2 (lib/openzeppelin-contracts/contracts/interfaces/IERC1363.sol#2-4)
+		->=0.6.2 (lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol#2-4)
+		->=0.6.2 (lib/openzeppelin-contracts/contracts/token/ERC1155/IERC1155Receiver.sol#2-4)
+		->=0.6.2 (lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol#2-4)
+		->=0.6.2 (lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol#2-4)
+		->=0.6.2 (lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Metadata.sol#2-4)
+	- Version constraint >=0.4.16 is used by:
+		->=0.4.16 (lib/openzeppelin-contracts/contracts/interfaces/IERC165.sol#2-4)
+		->=0.4.16 (lib/openzeppelin-contracts/contracts/interfaces/IERC20.sol#2-4)
+		->=0.4.16 (lib/openzeppelin-contracts/contracts/interfaces/IERC5267.sol#2-4)
+		->=0.4.16 (lib/openzeppelin-contracts/contracts/interfaces/IERC6372.sol#2-4)
+		->=0.4.16 (lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol#2-4)
+		->=0.4.16 (lib/openzeppelin-contracts/contracts/proxy/beacon/IBeacon.sol#2-4)
+		->=0.4.16 (lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol#2-4)
+		->=0.4.16 (lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol#2-4)
+		->=0.4.16 (lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol#2-4)
+	- Version constraint >=0.4.11 is used by:
+		->=0.4.11 (lib/openzeppelin-contracts/contracts/interfaces/IERC1967.sol#2-4)
+	- Version constraint ^0.8.21 is used by:
+		-^0.8.21 (lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Utils.sol#2-4)
+	- Version constraint ^0.8.22 is used by:
+		-^0.8.22 (lib/openzeppelin-contracts/contracts/proxy/utils/UUPSUpgradeable.sol#2-4)
+		-^0.8.22 (lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol#2-3)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used
+INFO:Detectors:
+Detector: low-level-calls
+Low level call in RWATreasury.withdrawEther(address,uint256) (src/treasury/RWATreasury.sol#35-51):
+	- (success,None) = to.call{value: amount}() (src/treasury/RWATreasury.sol#44)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls
+INFO:Detectors:
+Detector: missing-inheritance
+RWALPToken (src/amm/RWALPToken.sol#7-36) should inherit from IRWAAssetToken (src/issuer/MintingManager.sol#10-13)
+MintingManager (src/issuer/MintingManager.sol#15-93) should inherit from IRWAAssetToken (src/issuer/MintingManager.sol#10-13)
+RWAAssetToken (src/token/RWAAssetToken.sol#9-77) should inherit from IRWAAssetToken (src/issuer/MintingManager.sol#10-13)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#missing-inheritance
+INFO:Detectors:
+Detector: naming-convention
+Variable UpgradeableAssetManager.__gap (src/upgradeable/UpgradeableAssetManager.sol#127) is not in mixedCase
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions
+INFO:Detectors:
+Detector: too-many-digits
+RWAFactory.predictAMM2Address(address,address,bytes32) (src/factory/RWAFactory.sol#39-49) uses literals with too many digits:
+	- bytecode = abi.encodePacked(type()(RWAAMM).creationCode,abi.encode(token0,token1)) (src/factory/RWAFactory.sol#44)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits
+INFO:Detectors:
+Detector: constable-states
+MockV3Aggregator.version (src/mocks/MockV3Aggregator.sol#7) should be constant 
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant
+INFO:Slither:src analyzed (93 contracts with 101 detectors), 24 result(s) found
