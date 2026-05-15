@@ -114,4 +114,33 @@ contract RWAAssetTokenTest is Test {
         vm.expectRevert();
         token.updateAssetProofURI("ipfs://new-proof");
     }
+
+    function testBurnRevertsForZeroAddress() public {
+    vm.prank(admin);
+    vm.expectRevert(RWAAssetToken.ZeroAddress.selector);
+    token.burn(address(0), 100 ether);
+    }
+
+    function testPauseByNonPauserReverts() public {
+    vm.prank(stranger);
+    vm.expectRevert();
+    token.pause();
+    }
+
+    function testUnpauseByNonPauserReverts() public {
+    vm.prank(stranger);
+    vm.expectRevert();
+    token.unpause();
+    }
+
+    function testTransferWorksWhenNotPaused() public {
+    vm.prank(admin);
+    token.mint(user, 100 ether);
+
+    vm.prank(user);
+    token.transfer(stranger, 25 ether);
+
+    assertEq(token.balanceOf(stranger), 25 ether);
+    assertEq(token.balanceOf(user), 75 ether);
+    }
 }

@@ -116,4 +116,68 @@ contract MintingManagerTest is Test {
 
         assertEq(token.balanceOf(user), 100 ether);
     }
+    function testConstructorRevertsForZeroAdmin() public {
+    vm.expectRevert(MintingManager.ZeroAddress.selector);
+    new MintingManager(
+        address(0),
+        address(token),
+        address(registry),
+        address(oracle)
+    );
+    }
+
+    function testConstructorRevertsForZeroAssetToken() public {
+    vm.expectRevert(MintingManager.ZeroAddress.selector);
+    new MintingManager(
+        admin,
+        address(0),
+        address(registry),
+        address(oracle)
+    );
+    }
+
+    function testConstructorRevertsForZeroRegistry() public {
+    vm.expectRevert(MintingManager.ZeroAddress.selector);
+    new MintingManager(
+        admin,
+        address(token),
+        address(0),
+        address(oracle)
+    );
+    }
+
+    function testConstructorRevertsForZeroOracle() public {
+    vm.expectRevert(MintingManager.ZeroAddress.selector);
+    new MintingManager(
+        admin,
+        address(token),
+        address(registry),
+        address(0)
+    );
+    }
+
+    function testBurnRevertsForZeroAddress() public {
+    vm.prank(issuer);
+    vm.expectRevert(MintingManager.ZeroAddress.selector);
+    manager.burn(address(0), 100 ether);
+    }
+
+    function testBurnRevertsForZeroAmount() public {
+    vm.prank(issuer);
+    vm.expectRevert(MintingManager.ZeroAmount.selector);
+    manager.burn(user, 0);
+    }
+
+    function testBurnRevertsIfOracleStale() public {
+    vm.prank(issuer);
+    manager.mint(user, 100 ether);
+
+    vm.warp(10 hours);
+    feed.setUpdatedAt(block.timestamp - 2 hours);
+
+    vm.prank(issuer);
+    vm.expectRevert(RWAOracleAdapter.StalePrice.selector);
+    manager.burn(user, 10 ether);
+    }
+
 }

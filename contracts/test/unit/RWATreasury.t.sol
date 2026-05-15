@@ -82,4 +82,45 @@ contract RWATreasuryTest is Test {
         vm.expectRevert();
         treasury.withdrawERC20(address(token), receiver, 100 ether);
     }
+
+    function testERC20BalanceRevertsForZeroToken() public {
+    vm.expectRevert(RWATreasury.ZeroAddress.selector);
+    treasury.erc20Balance(address(0));
+    }
+    
+    function testWithdrawEtherRevertsForZeroAmount() public {
+    vm.prank(admin);
+    vm.expectRevert(RWATreasury.ZeroAmount.selector);
+    treasury.withdrawEther(payable(receiver), 0);
+    }
+    
+    function testWithdrawERC20RevertsForZeroToken() public {
+    vm.prank(admin);
+    vm.expectRevert(RWATreasury.ZeroAddress.selector);
+    treasury.withdrawERC20(address(0), receiver, 100 ether);
+    }
+    
+    function testWithdrawERC20RevertsForZeroReceiver() public {
+    vm.prank(admin);
+    vm.expectRevert(RWATreasury.ZeroAddress.selector);
+    treasury.withdrawERC20(address(token), address(0), 100 ether);
+    }
+    
+    function testWithdrawERC20RevertsForZeroAmount() public {
+    vm.prank(admin);
+    vm.expectRevert(RWATreasury.ZeroAmount.selector);
+    treasury.withdrawERC20(address(token), receiver, 0);
+    }
+
+    function testReceiveEtherWorks() public {
+    address sender = address(0xCAFE);
+    vm.deal(sender, 1 ether);
+
+    vm.prank(sender);
+    (bool success, ) = address(treasury).call{value: 1 ether}("");
+
+    assertTrue(success);
+    assertEq(treasury.etherBalance(), 11 ether);
+    }
+
 }

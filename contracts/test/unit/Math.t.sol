@@ -42,4 +42,16 @@ contract MathTest is Test {
         assertEq(assemblyMath.max(10, 20), solidityMath.max(10, 20));
         assertEq(assemblyMath.max(20, 10), solidityMath.max(20, 10));
     }
+
+    function testAssemblyCalculateFeeZeroAmount() public view {
+    assertEq(assemblyMath.calculateFee(0, 300), 0);
+    }
+    
+    function testAssemblyMinEqualValues() public view {
+    assertEq(assemblyMath.min(10, 10), 10);
+    }
+    
+    function testAssemblyMaxEqualValues() public view {
+    assertEq(assemblyMath.max(10, 10), 10);
+    }
 }

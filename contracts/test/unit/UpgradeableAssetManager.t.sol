@@ -130,4 +130,78 @@ contract UpgradeableAssetManagerTest is Test {
     function testVersionV2() public view {
         assertEq(managerV2.version(), "V2");
     }
+
+    function testAddAssetRevertsForDuplicateAsset() public {
+    vm.startPrank(admin);
+
+    manager.addAsset(asset, 15_000, oracle);
+
+    vm.expectRevert(UpgradeableAssetManager.AssetAlreadySupported.selector);
+    manager.addAsset(asset, 15_000, oracle);
+
+    vm.stopPrank();
+    }
+
+    function testRemoveAssetRevertsForUnsupportedAsset() public {
+    vm.prank(admin);
+    vm.expectRevert(UpgradeableAssetManager.AssetNotSupported.selector);
+    manager.removeAsset(asset);
+    }
+
+    function testUpdateCollateralRatioRevertsForUnsupportedAsset() public {
+    vm.prank(admin);
+    vm.expectRevert(UpgradeableAssetManager.AssetNotSupported.selector);
+    manager.updateCollateralRatio(asset, 12_000);
+    }
+
+    function testUpdateCollateralRatioRevertsForInvalidRatioTooHigh() public {
+    vm.startPrank(admin);
+
+    manager.addAsset(asset, 15_000, oracle);
+
+    vm.expectRevert(UpgradeableAssetManager.InvalidCollateralRatio.selector);
+    manager.updateCollateralRatio(asset, 20_001);
+
+    vm.stopPrank();
+    }
+
+    function testUpdateOracleRevertsForZeroOracle() public {
+    vm.startPrank(admin);
+
+    manager.addAsset(asset, 15_000, oracle);
+
+    vm.expectRevert(UpgradeableAssetManager.ZeroAddress.selector);
+    manager.updateOracle(asset, address(0));
+
+    vm.stopPrank();
+    }
+
+    function testUpdateOracleRevertsForUnsupportedAsset() public {
+    vm.prank(admin);
+    vm.expectRevert(UpgradeableAssetManager.AssetNotSupported.selector);
+    manager.updateOracle(asset, address(0x1234));
+    }
+
+    function testV2SetRiskScoreRevertsForUnsupportedAsset() public {
+    vm.prank(admin);
+    vm.expectRevert(UpgradeableAssetManager.AssetNotSupported.selector);
+    managerV2.setRiskScore(asset, 50);
+    }
+
+    function testV2SetRiskScoreRevertsForInvalidRiskScore() public {
+    vm.startPrank(admin);
+
+    managerV2.addAsset(asset, 15_000, oracle);
+
+    vm.expectRevert(UpgradeableAssetManagerV2.InvalidRiskScore.selector);
+    managerV2.setRiskScore(asset, 101);
+
+    vm.stopPrank();
+    }
+
+    function testV2SetAssetFrozenRevertsForUnsupportedAsset() public {
+    vm.prank(admin);
+    vm.expectRevert(UpgradeableAssetManager.AssetNotSupported.selector);
+    managerV2.setAssetFrozen(asset, true);
+    }
 }

@@ -123,4 +123,78 @@ contract RWAAMMTest is Test {
         uint256 amountOut = amm.getAmountOut(100 ether, 1_000 ether, 1_000 ether);
         assertGt(amountOut, 0);
     }
+    function testRemoveLiquidityRevertsForZeroLiquidity() public {
+    vm.prank(user);
+    vm.expectRevert(RWAAMM.ZeroAmount.selector);
+    amm.removeLiquidity(0, 1, 1);
+    }
+
+    function testRemoveLiquidityRevertsForSlippage() public {
+    vm.prank(user);
+    uint256 liquidity = amm.addLiquidity(100 ether, 100 ether, 1);
+
+    vm.prank(user);
+    vm.expectRevert(RWAAMM.SlippageExceeded.selector);
+    amm.removeLiquidity(liquidity, 200 ether, 1);
+    }
+
+    function testSwapRevertsForZeroAmount() public {
+    vm.prank(user);
+    amm.addLiquidity(1_000 ether, 1_000 ether, 1);
+
+    vm.prank(trader);
+    vm.expectRevert(RWAAMM.ZeroAmount.selector);
+    amm.swap(address(token0), 0, 1);
+    }
+
+    function testSwapRevertsForInsufficientLiquidity() public {
+    vm.prank(trader);
+    vm.expectRevert(RWAAMM.InsufficientLiquidity.selector);
+    amm.swap(address(token0), 100 ether, 1);
+    }
+
+    function testGetAmountOutRevertsForZeroAmount() public {
+    vm.expectRevert(RWAAMM.ZeroAmount.selector);
+    amm.getAmountOut(0, 1_000 ether, 1_000 ether);
+    }
+
+    function testGetAmountOutRevertsForZeroReserveIn() public {
+    vm.expectRevert(RWAAMM.InsufficientLiquidity.selector);
+    amm.getAmountOut(100 ether, 0, 1_000 ether);
+    }
+
+    function testGetAmountOutRevertsForZeroReserveOut() public {
+    vm.expectRevert(RWAAMM.InsufficientLiquidity.selector);
+    amm.getAmountOut(100 ether, 1_000 ether, 0);
+    }
+
+    function testGetReservesWorks() public {
+    vm.prank(user);
+    amm.addLiquidity(123 ether, 456 ether, 1);
+
+    (uint256 reserve0, uint256 reserve1) = amm.getReserves();
+
+    assertEq(reserve0, 123 ether);
+    assertEq(reserve1, 456 ether);
+    }
+
+    function testAddLiquidityWithTinyAmountsCoversSqrtSmallBranch() public {
+    token0.mint(user, 10);
+    token1.mint(user, 10);
+
+    vm.startPrank(user);
+    token0.approve(address(amm), type(uint256).max);
+    token1.approve(address(amm), type(uint256).max);
+
+    uint256 liquidity = amm.addLiquidity(1, 1, 1);
+    vm.stopPrank();
+
+    assertEq(liquidity, 1);
+    }
+
+    function testAddLiquidityRevertsForMinLiquiditySlippage() public {
+    vm.prank(user);
+    vm.expectRevert(RWAAMM.SlippageExceeded.selector);
+    amm.addLiquidity(1, 1, 2);
+    }
 }

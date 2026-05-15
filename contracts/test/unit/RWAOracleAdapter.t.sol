@@ -89,4 +89,47 @@ contract RWAOracleAdapterTest is Test {
         vm.expectRevert();
         adapter.updateMaxStaleness(2 hours);
     }
+
+    function testGetLatestPriceDataWorks() public view {
+    (int256 price, uint256 updatedAt, uint256 currentTimestamp) =
+        adapter.getLatestPriceData();
+
+    assertEq(price, 2_000e8);
+    assertGt(updatedAt, 0);
+    assertEq(currentTimestamp, block.timestamp);
+    }
+    
+    function testGetLatestPriceDataRevertsForInvalidPrice() public {
+    feed.updateAnswer(-1);
+
+    vm.expectRevert(RWAOracleAdapter.InvalidPrice.selector);
+    adapter.getLatestPriceData();
+    }
+    
+    function testGetLatestPriceDataRevertsForStalePrice() public {
+    vm.warp(10 hours);
+    feed.setUpdatedAt(block.timestamp - maxStaleness - 1);
+
+    vm.expectRevert(RWAOracleAdapter.StalePrice.selector);
+    adapter.getLatestPriceData();
+    }
+    
+    function testUpdatePriceFeedRevertsForZeroAddress() public {
+    vm.prank(admin);
+    vm.expectRevert(RWAOracleAdapter.ZeroAddress.selector);
+    adapter.updatePriceFeed(address(0));
+    }
+    
+    function testUpdateMaxStalenessRevertsForZeroValue() public {
+    vm.prank(admin);
+    vm.expectRevert(RWAOracleAdapter.InvalidStaleness.selector);
+    adapter.updateMaxStaleness(0);
+    }
+
+    function testGetLatestPriceDataReturnsCurrentTimestamp() public view {
+    (, , uint256 currentTimestamp) = adapter.getLatestPriceData();
+
+    assertEq(currentTimestamp, block.timestamp);
+    }
+
 }
