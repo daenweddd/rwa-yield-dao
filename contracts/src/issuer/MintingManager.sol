@@ -19,35 +19,18 @@ contract MintingManager is AccessControl, Pausable, ReentrancyGuard {
     IssuerRegistry public immutable issuerRegistry;
     RWAOracleAdapter public immutable oracleAdapter;
 
-    event AssetMinted(
-        address indexed issuer,
-        address indexed to,
-        uint256 amount,
-        int256 oraclePrice
-    );
+    event AssetMinted(address indexed issuer, address indexed to, uint256 amount, int256 oraclePrice);
 
-    event AssetBurned(
-        address indexed issuer,
-        address indexed from,
-        uint256 amount,
-        int256 oraclePrice
-    );
+    event AssetBurned(address indexed issuer, address indexed from, uint256 amount, int256 oraclePrice);
 
     error ZeroAddress();
     error ZeroAmount();
     error NotAuthorizedIssuer();
 
-    constructor(
-        address admin,
-        address _assetToken,
-        address _issuerRegistry,
-        address _oracleAdapter
-    ) {
+    constructor(address admin, address _assetToken, address _issuerRegistry, address _oracleAdapter) {
         if (
-            admin == address(0) ||
-            _assetToken == address(0) ||
-            _issuerRegistry == address(0) ||
-            _oracleAdapter == address(0)
+            admin == address(0) || _assetToken == address(0) || _issuerRegistry == address(0)
+                || _oracleAdapter == address(0)
         ) {
             revert ZeroAddress();
         }

@@ -18,21 +18,14 @@ contract RWAYieldVault is ERC4626, AccessControl, Pausable, ReentrancyGuard {
     uint256 public constant MAX_FEE_BPS = 2_000;
     uint256 public constant BPS_DENOMINATOR = 10_000;
 
-    event TreasuryUpdated(
-        address indexed oldTreasury,
-        address indexed newTreasury
-    );
+    event TreasuryUpdated(address indexed oldTreasury, address indexed newTreasury);
 
     event PerformanceFeeUpdated(uint256 oldFeeBps, uint256 newFeeBps);
 
     error ZeroAddress();
     error FeeTooHigh();
 
-    constructor(
-        IERC20 asset_,
-        address admin,
-        address treasury_
-    )
+    constructor(IERC20 asset_, address admin, address treasury_)
         ERC20("RealYield RWA Vault Share", "ryRWA")
         ERC4626(asset_)
     {
@@ -47,10 +40,7 @@ contract RWAYieldVault is ERC4626, AccessControl, Pausable, ReentrancyGuard {
         _grantRole(PAUSER_ROLE, admin);
     }
 
-    function deposit(
-        uint256 assets,
-        address receiver
-    )
+    function deposit(uint256 assets, address receiver)
         public
         override
         nonReentrant
@@ -60,10 +50,7 @@ contract RWAYieldVault is ERC4626, AccessControl, Pausable, ReentrancyGuard {
         shares = super.deposit(assets, receiver);
     }
 
-    function mint(
-        uint256 shares,
-        address receiver
-    )
+    function mint(uint256 shares, address receiver)
         public
         override
         nonReentrant
@@ -73,11 +60,7 @@ contract RWAYieldVault is ERC4626, AccessControl, Pausable, ReentrancyGuard {
         assets = super.mint(shares, receiver);
     }
 
-    function withdraw(
-        uint256 assets,
-        address receiver,
-        address owner
-    )
+    function withdraw(uint256 assets, address receiver, address owner)
         public
         override
         nonReentrant
@@ -87,11 +70,7 @@ contract RWAYieldVault is ERC4626, AccessControl, Pausable, ReentrancyGuard {
         shares = super.withdraw(assets, receiver, owner);
     }
 
-    function redeem(
-        uint256 shares,
-        address receiver,
-        address owner
-    )
+    function redeem(uint256 shares, address receiver, address owner)
         public
         override
         nonReentrant
@@ -109,9 +88,7 @@ contract RWAYieldVault is ERC4626, AccessControl, Pausable, ReentrancyGuard {
         _unpause();
     }
 
-    function updateTreasury(
-        address newTreasury
-    ) external onlyRole(VAULT_ADMIN_ROLE) {
+    function updateTreasury(address newTreasury) external onlyRole(VAULT_ADMIN_ROLE) {
         if (newTreasury == address(0)) {
             revert ZeroAddress();
         }
@@ -122,9 +99,7 @@ contract RWAYieldVault is ERC4626, AccessControl, Pausable, ReentrancyGuard {
         emit TreasuryUpdated(oldTreasury, newTreasury);
     }
 
-    function updatePerformanceFeeBps(
-        uint256 newFeeBps
-    ) external onlyRole(VAULT_ADMIN_ROLE) {
+    function updatePerformanceFeeBps(uint256 newFeeBps) external onlyRole(VAULT_ADMIN_ROLE) {
         if (newFeeBps > MAX_FEE_BPS) {
             revert FeeTooHigh();
         }
@@ -135,9 +110,7 @@ contract RWAYieldVault is ERC4626, AccessControl, Pausable, ReentrancyGuard {
         emit PerformanceFeeUpdated(oldFee, newFeeBps);
     }
 
-    function previewPerformanceFee(
-        uint256 yieldAmount
-    ) external view returns (uint256) {
+    function previewPerformanceFee(uint256 yieldAmount) external view returns (uint256) {
         return (yieldAmount * performanceFeeBps) / BPS_DENOMINATOR;
     }
 }

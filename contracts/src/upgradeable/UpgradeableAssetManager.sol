@@ -5,11 +5,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-contract UpgradeableAssetManager is
-    Initializable,
-    UUPSUpgradeable,
-    AccessControlUpgradeable
-{
+contract UpgradeableAssetManager is Initializable, UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 public constant ASSET_ADMIN_ROLE = keccak256("ASSET_ADMIN_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
@@ -21,25 +17,13 @@ contract UpgradeableAssetManager is
 
     mapping(address asset => AssetConfig config) internal assetConfigs;
 
-    event AssetAdded(
-        address indexed asset,
-        uint256 collateralRatioBps,
-        address indexed oracle
-    );
+    event AssetAdded(address indexed asset, uint256 collateralRatioBps, address indexed oracle);
 
     event AssetRemoved(address indexed asset);
 
-    event CollateralRatioUpdated(
-        address indexed asset,
-        uint256 oldRatioBps,
-        uint256 newRatioBps
-    );
+    event CollateralRatioUpdated(address indexed asset, uint256 oldRatioBps, uint256 newRatioBps);
 
-    event OracleUpdated(
-        address indexed asset,
-        address indexed oldOracle,
-        address indexed newOracle
-    );
+    event OracleUpdated(address indexed asset, address indexed oldOracle, address indexed newOracle);
 
     error ZeroAddress();
     error InvalidCollateralRatio();
@@ -58,11 +42,7 @@ contract UpgradeableAssetManager is
         _grantRole(UPGRADER_ROLE, admin);
     }
 
-    function addAsset(
-        address asset,
-        uint256 collateralRatioBps,
-        address oracle
-    ) external onlyRole(ASSET_ADMIN_ROLE) {
+    function addAsset(address asset, uint256 collateralRatioBps, address oracle) external onlyRole(ASSET_ADMIN_ROLE) {
         if (asset == address(0) || oracle == address(0)) {
             revert ZeroAddress();
         }
@@ -75,11 +55,7 @@ contract UpgradeableAssetManager is
             revert InvalidCollateralRatio();
         }
 
-        assetConfigs[asset] = AssetConfig({
-            supported: true,
-            collateralRatioBps: collateralRatioBps,
-            oracle: oracle
-        });
+        assetConfigs[asset] = AssetConfig({supported: true, collateralRatioBps: collateralRatioBps, oracle: oracle});
 
         emit AssetAdded(asset, collateralRatioBps, oracle);
     }
@@ -94,10 +70,7 @@ contract UpgradeableAssetManager is
         emit AssetRemoved(asset);
     }
 
-    function updateCollateralRatio(
-        address asset,
-        uint256 newCollateralRatioBps
-    ) external onlyRole(ASSET_ADMIN_ROLE) {
+    function updateCollateralRatio(address asset, uint256 newCollateralRatioBps) external onlyRole(ASSET_ADMIN_ROLE) {
         if (!assetConfigs[asset].supported) {
             revert AssetNotSupported();
         }
@@ -112,10 +85,7 @@ contract UpgradeableAssetManager is
         emit CollateralRatioUpdated(asset, oldRatio, newCollateralRatioBps);
     }
 
-    function updateOracle(
-        address asset,
-        address newOracle
-    ) external onlyRole(ASSET_ADMIN_ROLE) {
+    function updateOracle(address asset, address newOracle) external onlyRole(ASSET_ADMIN_ROLE) {
         if (newOracle == address(0)) {
             revert ZeroAddress();
         }
@@ -134,9 +104,7 @@ contract UpgradeableAssetManager is
         return assetConfigs[asset].supported;
     }
 
-    function getAssetConfig(
-        address asset
-    )
+    function getAssetConfig(address asset)
         external
         view
         returns (bool supported, uint256 collateralRatioBps, address oracle)
@@ -150,9 +118,7 @@ contract UpgradeableAssetManager is
         return "V1";
     }
 
-    function _authorizeUpgrade(
-        address newImplementation
-    ) internal override onlyRole(UPGRADER_ROLE) {
+    function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {
         if (newImplementation == address(0)) {
             revert ZeroAddress();
         }

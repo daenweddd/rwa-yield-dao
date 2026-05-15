@@ -12,17 +12,9 @@ contract MockV3Aggregator {
     uint256 private latestUpdatedAt;
     uint80 private latestAnsweredInRound;
 
-    event AnswerUpdated(
-        int256 indexed current,
-        uint256 indexed roundId,
-        uint256 updatedAt
-    );
+    event AnswerUpdated(int256 indexed current, uint256 indexed roundId, uint256 updatedAt);
 
-    event NewRound(
-        uint256 indexed roundId,
-        address indexed startedBy,
-        uint256 startedAt
-    );
+    event NewRound(uint256 indexed roundId, address indexed startedBy, uint256 startedAt);
 
     constructor(uint8 _decimals, int256 _initialAnswer) {
         decimals = _decimals;
@@ -50,40 +42,12 @@ contract MockV3Aggregator {
     function latestRoundData()
         external
         view
-        returns (
-            uint80 roundId,
-            int256 answer,
-            uint256 startedAt,
-            uint256 updatedAt,
-            uint80 answeredInRound
-        )
+        returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
-        return (
-            latestRoundId,
-            latestAnswer,
-            latestStartedAt,
-            latestUpdatedAt,
-            latestAnsweredInRound
-        );
+        return (latestRoundId, latestAnswer, latestStartedAt, latestUpdatedAt, latestAnsweredInRound);
     }
 
-    function getRoundData(uint80 roundId)
-        external
-        view
-        returns (
-            uint80,
-            int256,
-            uint256,
-            uint256,
-            uint80
-        )
-    {
-        return (
-            roundId,
-            latestAnswer,
-            latestStartedAt,
-            latestUpdatedAt,
-            latestAnsweredInRound
-        );
+    function getRoundData(uint80 roundId) external view returns (uint80, int256, uint256, uint256, uint80) {
+        return (roundId, latestAnswer, latestStartedAt, latestUpdatedAt, latestAnsweredInRound);
     }
 }

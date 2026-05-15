@@ -11,11 +11,7 @@ contract UpgradeableAssetManagerV2 is UpgradeableAssetManager {
 
     mapping(address asset => RiskConfig config) internal riskConfigs;
 
-    event RiskScoreUpdated(
-        address indexed asset,
-        uint256 oldRiskScore,
-        uint256 newRiskScore
-    );
+    event RiskScoreUpdated(address indexed asset, uint256 oldRiskScore, uint256 newRiskScore);
 
     event AssetFreezeStatusUpdated(address indexed asset, bool frozen);
 
@@ -24,10 +20,7 @@ contract UpgradeableAssetManagerV2 is UpgradeableAssetManager {
 
     function initializeV2() public reinitializer(2) {}
 
-    function setRiskScore(
-        address asset,
-        uint256 newRiskScore
-    ) external onlyRole(ASSET_ADMIN_ROLE) {
+    function setRiskScore(address asset, uint256 newRiskScore) external onlyRole(ASSET_ADMIN_ROLE) {
         if (!assetConfigs[asset].supported) {
             revert AssetNotSupported();
         }
@@ -42,10 +35,7 @@ contract UpgradeableAssetManagerV2 is UpgradeableAssetManager {
         emit RiskScoreUpdated(asset, oldRiskScore, newRiskScore);
     }
 
-    function setAssetFrozen(
-        address asset,
-        bool frozen
-    ) external onlyRole(ASSET_ADMIN_ROLE) {
+    function setAssetFrozen(address asset, bool frozen) external onlyRole(ASSET_ADMIN_ROLE) {
         if (!assetConfigs[asset].supported) {
             revert AssetNotSupported();
         }
@@ -55,9 +45,7 @@ contract UpgradeableAssetManagerV2 is UpgradeableAssetManager {
         emit AssetFreezeStatusUpdated(asset, frozen);
     }
 
-    function getRiskConfig(
-        address asset
-    ) external view returns (uint256 riskScore, bool frozen) {
+    function getRiskConfig(address asset) external view returns (uint256 riskScore, bool frozen) {
         RiskConfig memory config = riskConfigs[asset];
 
         return (config.riskScore, config.frozen);

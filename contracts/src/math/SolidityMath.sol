@@ -4,10 +4,7 @@ pragma solidity ^0.8.24;
 contract SolidityMath {
     error BasisPointsTooHigh();
 
-    function calculateFee(
-        uint256 amount,
-        uint256 basisPoints
-    ) external pure returns (uint256) {
+    function calculateFee(uint256 amount, uint256 basisPoints) external pure returns (uint256) {
         if (basisPoints > 10_000) {
             revert BasisPointsTooHigh();
         }

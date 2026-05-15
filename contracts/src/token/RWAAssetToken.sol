@@ -19,11 +19,7 @@ contract RWAAssetToken is ERC20, ERC20Permit, ERC20Pausable, AccessControl {
     error ZeroAddress();
     error EmptyString();
 
-    constructor(
-        address admin,
-        string memory _assetName,
-        string memory _assetProofURI
-    )
+    constructor(address admin, string memory _assetName, string memory _assetProofURI)
         ERC20("RealYield RWA Asset Token", "RYRWA")
         ERC20Permit("RealYield RWA Asset Token")
     {
@@ -68,20 +64,14 @@ contract RWAAssetToken is ERC20, ERC20Permit, ERC20Pausable, AccessControl {
         _unpause();
     }
 
-    function updateAssetProofURI(
-        string calldata newURI
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function updateAssetProofURI(string calldata newURI) external onlyRole(DEFAULT_ADMIN_ROLE) {
         string memory oldURI = assetProofURI;
         assetProofURI = newURI;
 
         emit AssetProofURIUpdated(oldURI, newURI);
     }
 
-    function _update(
-        address from,
-        address to,
-        uint256 value
-    ) internal override(ERC20, ERC20Pausable) {
+    function _update(address from, address to, uint256 value) internal override(ERC20, ERC20Pausable) {
         super._update(from, to, value);
     }
 }

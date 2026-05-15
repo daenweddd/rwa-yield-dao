@@ -19,26 +19,12 @@ contract RWAAMM is ReentrancyGuard {
     uint256 public constant FEE_NUMERATOR = 997;
     uint256 public constant FEE_DENOMINATOR = 1000;
 
-    event LiquidityAdded(
-        address indexed provider,
-        uint256 amount0,
-        uint256 amount1,
-        uint256 liquidity
-    );
+    event LiquidityAdded(address indexed provider, uint256 amount0, uint256 amount1, uint256 liquidity);
 
-    event LiquidityRemoved(
-        address indexed provider,
-        uint256 amount0,
-        uint256 amount1,
-        uint256 liquidity
-    );
+    event LiquidityRemoved(address indexed provider, uint256 amount0, uint256 amount1, uint256 liquidity);
 
     event Swap(
-        address indexed user,
-        address indexed tokenIn,
-        address indexed tokenOut,
-        uint256 amountIn,
-        uint256 amountOut
+        address indexed user, address indexed tokenIn, address indexed tokenOut, uint256 amountIn, uint256 amountOut
     );
 
     error ZeroAddress();
@@ -62,11 +48,11 @@ contract RWAAMM is ReentrancyGuard {
         lpToken = new RWALPToken(address(this));
     }
 
-    function addLiquidity(
-        uint256 amount0,
-        uint256 amount1,
-        uint256 minLiquidity
-    ) external nonReentrant returns (uint256 liquidity) {
+    function addLiquidity(uint256 amount0, uint256 amount1, uint256 minLiquidity)
+        external
+        nonReentrant
+        returns (uint256 liquidity)
+    {
         if (amount0 == 0 || amount1 == 0) {
             revert ZeroAmount();
         }
@@ -99,11 +85,11 @@ contract RWAAMM is ReentrancyGuard {
         emit LiquidityAdded(msg.sender, amount0, amount1, liquidity);
     }
 
-    function removeLiquidity(
-        uint256 liquidity,
-        uint256 minAmount0,
-        uint256 minAmount1
-    ) external nonReentrant returns (uint256 amount0, uint256 amount1) {
+    function removeLiquidity(uint256 liquidity, uint256 minAmount0, uint256 minAmount1)
+        external
+        nonReentrant
+        returns (uint256 amount0, uint256 amount1)
+    {
         if (liquidity == 0) {
             revert ZeroAmount();
         }
@@ -131,11 +117,11 @@ contract RWAAMM is ReentrancyGuard {
         emit LiquidityRemoved(msg.sender, amount0, amount1, liquidity);
     }
 
-    function swap(
-        address tokenIn,
-        uint256 amountIn,
-        uint256 minAmountOut
-    ) external nonReentrant returns (uint256 amountOut) {
+    function swap(address tokenIn, uint256 amountIn, uint256 minAmountOut)
+        external
+        nonReentrant
+        returns (uint256 amountOut)
+    {
         if (amountIn == 0) {
             revert ZeroAmount();
         }
@@ -168,20 +154,14 @@ contract RWAAMM is ReentrancyGuard {
 
         _updateReserves();
 
-        emit Swap(
-            msg.sender,
-            address(inputToken),
-            address(outputToken),
-            amountIn,
-            amountOut
-        );
+        emit Swap(msg.sender, address(inputToken), address(outputToken), amountIn, amountOut);
     }
 
-    function getAmountOut(
-        uint256 amountIn,
-        uint256 reserveIn,
-        uint256 reserveOut
-    ) public pure returns (uint256 amountOut) {
+    function getAmountOut(uint256 amountIn, uint256 reserveIn, uint256 reserveOut)
+        public
+        pure
+        returns (uint256 amountOut)
+    {
         if (amountIn == 0) {
             revert ZeroAmount();
         }
@@ -191,9 +171,7 @@ contract RWAAMM is ReentrancyGuard {
         }
 
         uint256 amountInWithFee = amountIn * FEE_NUMERATOR;
-        amountOut =
-            (amountInWithFee * reserveOut) /
-            ((reserveIn * FEE_DENOMINATOR) + amountInWithFee);
+        amountOut = (amountInWithFee * reserveOut) / ((reserveIn * FEE_DENOMINATOR) + amountInWithFee);
     }
 
     function getReserves() external view returns (uint256, uint256) {

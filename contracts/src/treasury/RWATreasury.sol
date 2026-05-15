@@ -9,16 +9,11 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 contract RWATreasury is AccessControl, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    bytes32 public constant TREASURY_MANAGER_ROLE =
-        keccak256("TREASURY_MANAGER_ROLE");
+    bytes32 public constant TREASURY_MANAGER_ROLE = keccak256("TREASURY_MANAGER_ROLE");
 
     event EtherReceived(address indexed sender, uint256 amount);
     event EtherWithdrawn(address indexed to, uint256 amount);
-    event ERC20Withdrawn(
-        address indexed token,
-        address indexed to,
-        uint256 amount
-    );
+    event ERC20Withdrawn(address indexed token, address indexed to, uint256 amount);
 
     error ZeroAddress();
     error ZeroAmount();
@@ -37,10 +32,7 @@ contract RWATreasury is AccessControl, ReentrancyGuard {
         emit EtherReceived(msg.sender, msg.value);
     }
 
-    function withdrawEther(
-        address payable to,
-        uint256 amount
-    ) external nonReentrant onlyRole(TREASURY_MANAGER_ROLE) {
+    function withdrawEther(address payable to, uint256 amount) external nonReentrant onlyRole(TREASURY_MANAGER_ROLE) {
         if (to == address(0)) {
             revert ZeroAddress();
         }
@@ -49,7 +41,7 @@ contract RWATreasury is AccessControl, ReentrancyGuard {
             revert ZeroAmount();
         }
 
-        (bool success, ) = to.call{value: amount}("");
+        (bool success,) = to.call{value: amount}("");
 
         if (!success) {
             revert EtherTransferFailed();
@@ -58,11 +50,11 @@ contract RWATreasury is AccessControl, ReentrancyGuard {
         emit EtherWithdrawn(to, amount);
     }
 
-    function withdrawERC20(
-        address token,
-        address to,
-        uint256 amount
-    ) external nonReentrant onlyRole(TREASURY_MANAGER_ROLE) {
+    function withdrawERC20(address token, address to, uint256 amount)
+        external
+        nonReentrant
+        onlyRole(TREASURY_MANAGER_ROLE)
+    {
         if (token == address(0) || to == address(0)) {
             revert ZeroAddress();
         }
