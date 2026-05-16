@@ -1,0 +1,113 @@
+specVersion: 0.0.5
+description: RealYield RWA DAO subgraph configuration
+repository: https://github.com/daenweddd/rwa-yield-dao
+schema:
+  file: ./schema.graphql
+
+dataSources:
+  - kind: ethereum/contract
+    name: RWAAssetToken
+    network: sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: RWAAssetToken
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - TokenTransfer
+        - TokenMint
+        - TokenBurn
+      abis:
+        - name: RWAAssetToken
+          file: ../contracts/out/RWAAssetToken.sol/RWAAssetToken.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: AssetProofURIUpdated(string,string)
+          handler: handleAssetProofURIUpdated
+      file: ./src/mapping.ts
+
+  - kind: ethereum/contract
+    name: RWAYieldVault
+    network: sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: RWAYieldVault
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - VaultDeposit
+        - VaultWithdraw
+      abis:
+        - name: RWAYieldVault
+          file: ../contracts/out/RWAYieldVault.sol/RWAYieldVault.json
+      eventHandlers:
+        - event: Deposit(indexed address,indexed address,uint256,uint256)
+          handler: handleDeposit
+        - event: Withdraw(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleWithdraw
+        - event: TreasuryUpdated(indexed address,indexed address)
+          handler: handleTreasuryUpdated
+        - event: PerformanceFeeUpdated(uint256,uint256)
+          handler: handlePerformanceFeeUpdated
+      file: ./src/mapping.ts
+
+  - kind: ethereum/contract
+    name: RWAAMM
+    network: sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: RWAAMM
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - LiquidityAdded
+        - LiquidityRemoved
+        - Swap
+      abis:
+        - name: RWAAMM
+          file: ../contracts/out/RWAAMM.sol/RWAAMM.json
+      eventHandlers:
+        - event: LiquidityAdded(indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityRemoved
+        - event: Swap(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleSwap
+      file: ./src/mapping.ts
+
+  - kind: ethereum/contract
+    name: RWATreasury
+    network: sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: RWATreasury
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - TreasuryETHReceived
+        - TreasuryETHWithdrawn
+        - TreasuryERC20Withdrawn
+      abis:
+        - name: RWATreasury
+          file: ../contracts/out/RWATreasury.sol/RWATreasury.json
+      eventHandlers:
+        - event: EtherReceived(indexed address,uint256)
+          handler: handleEtherReceived
+        - event: EtherWithdrawn(indexed address,uint256)
+          handler: handleEtherWithdrawn
+        - event: ERC20Withdrawn(indexed address,indexed address,uint256)
+          handler: handleERC20Withdrawn
+      file: ./src/mapping.ts
